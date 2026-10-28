@@ -1,0 +1,1855 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriAnalytics | Crop Production System</title>
+
+    <!-- Bootstrap icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <style>
+        :root {
+            --green: #245c43;
+            --green-dark: #183e2f;
+            --green-light: #e5f0e7;
+            --cream: #f7f6ef;
+            --white: #ffffff;
+            --text: #24352b;
+            --muted: #77847b;
+            --border: #e4e9e2;
+            --orange: #d99a48;
+            --red: #c95b54;
+            --shadow: 0 5px 20px rgba(31, 66, 45, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: var(--cream);
+            color: var(--text);
+        }
+
+        button, input, select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* SIDEBAR */
+
+        .sidebar {
+            width: 245px;
+            background: var(--green-dark);
+            color: white;
+            padding: 27px 17px;
+            position: fixed;
+            inset: 0 auto 0 0;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            padding: 0 8px 28px;
+            border-bottom: 1px solid rgba(255,255,255,.13);
+        }
+
+        .brand-icon {
+            width: 43px;
+            height: 43px;
+            border-radius: 13px;
+            background: #dcebdc;
+            color: var(--green);
+            display: grid;
+            place-items: center;
+            font-size: 23px;
+        }
+
+        .brand h2 {
+            font-size: 19px;
+            letter-spacing: -.5px;
+        }
+
+        .brand p {
+            font-size: 11px;
+            color: #b9d0c0;
+            margin-top: 4px;
+        }
+
+        .nav-label {
+            font-size: 10px;
+            letter-spacing: 1.5px;
+            color: #91b09a;
+            margin: 27px 10px 12px;
+            font-weight: 700;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            width: 100%;
+            padding: 12px 13px;
+            margin-bottom: 6px;
+            border: 0;
+            border-radius: 9px;
+            background: transparent;
+            color: #c8d8cd;
+            text-align: left;
+            font-size: 13px;
+            transition: .2s;
+        }
+
+        .nav-link i {
+            font-size: 17px;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background: #326b4d;
+            color: white;
+        }
+
+        .sidebar-bottom {
+            margin-top: auto;
+            padding: 16px 10px 0;
+            border-top: 1px solid rgba(255,255,255,.13);
+            color: #b9d0c0;
+            font-size: 11px;
+            line-height: 1.7;
+        }
+
+        /* MAIN AREA */
+
+        .main {
+            margin-left: 245px;
+            width: calc(100% - 245px);
+            min-width: 0;
+        }
+
+        .topbar {
+            min-height: 76px;
+            padding: 17px 32px;
+            background: rgba(255,255,255,.88);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .topbar h1 {
+            font-size: 23px;
+            font-weight: 700;
+        }
+
+        .topbar p {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 13px;
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            background: white;
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #55a66e;
+        }
+
+        .content {
+            padding: 28px 32px 40px;
+            max-width: 1600px;
+            margin: auto;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* GENERAL ELEMENTS */
+
+        .section-heading {
+            font-size: 17px;
+            margin-bottom: 6px;
+        }
+
+        .section-subtitle {
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 19px;
+        }
+
+        .hero {
+            padding: 28px;
+            border-radius: 17px;
+            background: linear-gradient(115deg, #214e39, #367553);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 22px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+
+        .hero small {
+            color: #d0e3d3;
+            font-size: 11px;
+            letter-spacing: 1.3px;
+            text-transform: uppercase;
+        }
+
+        .hero h2 {
+            font-size: clamp(22px, 3vw, 30px);
+            line-height: 1.3;
+            margin: 10px 0;
+        }
+
+        .hero p {
+            font-size: 13px;
+            color: #e1eee3;
+            max-width: 540px;
+            line-height: 1.8;
+        }
+
+        .hero-icon {
+            font-size: 76px;
+            color: #dcebdc;
+            opacity: .9;
+            padding: 0 18px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 27px;
+        }
+
+        .stat-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 13px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            min-width: 0;
+        }
+
+        .stat-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--muted);
+        }
+
+        .stat-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: var(--green-light);
+            color: var(--green);
+            font-size: 18px;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 750;
+            margin-top: 16px;
+            overflow-wrap: anywhere;
+        }
+
+        .stat-note {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .panel {
+            min-width: 0;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 22px;
+            box-shadow: var(--shadow);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .panel-header h3 {
+            font-size: 15px;
+        }
+
+        .panel-header p {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 5px;
+        }
+
+        .chart-image {
+            display: block;
+            width: 100%;
+            min-height: 180px;
+            max-height: 350px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .chart-placeholder {
+            min-height: 210px;
+            display: grid;
+            place-items: center;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+            background: #fafbf8;
+            border-radius: 9px;
+            padding: 20px;
+        }
+
+        .chart-placeholder i {
+            font-size: 34px;
+            color: #8bad91;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        /* BUTTONS AND FILTERS */
+
+        .btn {
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 12px;
+            font-weight: 650;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .btn-primary {
+            background: var(--green);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--green-dark);
+        }
+
+        .btn-light {
+            background: #edf3ed;
+            color: var(--green);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--border);
+            background: white;
+            color: var(--text);
+        }
+
+        .filters {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+            min-width: 0;
+        }
+
+        .field label {
+            font-size: 11px;
+            color: #59695e;
+            font-weight: 650;
+        }
+
+        .field input,
+        .field select {
+            min-width: 0;
+            width: 100%;
+            padding: 10px 11px;
+            border: 1px solid #dfe6dd;
+            border-radius: 8px;
+            background: white;
+            color: var(--text);
+            outline: none;
+            font-size: 12px;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            border-color: #6b9b79;
+            box-shadow: 0 0 0 3px #e7f1e8;
+        }
+
+        .search-field {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        /* TABLES */
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            white-space: nowrap;
+            font-size: 12px;
+        }
+
+        th {
+            padding: 13px 12px;
+            text-align: left;
+            color: #657268;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            background: #f6f8f4;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 13px 12px;
+            border-bottom: 1px solid #edf0eb;
+        }
+
+        tbody tr:hover {
+            background: #fafcf9;
+        }
+
+        .empty-row {
+            padding: 28px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .pill {
+            display: inline-block;
+            padding: 5px 9px;
+            border-radius: 20px;
+            background: #e7f2e7;
+            color: #2b7045;
+            font-size: 10px;
+            font-weight: 700;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-top: 16px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .pagination-buttons {
+            display: flex;
+            gap: 7px;
+        }
+
+        /* UPLOAD */
+
+        .upload-box {
+            border: 2px dashed #bfd2c1;
+            border-radius: 13px;
+            padding: 34px 20px;
+            text-align: center;
+            background: #fafcf8;
+        }
+
+        .upload-box > i {
+            font-size: 45px;
+            color: var(--green);
+        }
+
+        .upload-box h3 {
+            margin: 13px 0 8px;
+            font-size: 17px;
+        }
+
+        .upload-box p {
+            font-size: 12px;
+            line-height: 1.7;
+            color: var(--muted);
+            margin-bottom: 17px;
+        }
+
+        .upload-box input[type="file"] {
+            display: block;
+            width: 100%;
+            max-width: 360px;
+            margin: 15px auto;
+            font-size: 12px;
+        }
+
+        .message {
+            display: none;
+            padding: 13px 15px;
+            border-radius: 9px;
+            margin-top: 16px;
+            font-size: 12px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
+        }
+
+        .message.success {
+            display: block;
+            background: #e8f5e9;
+            color: #216536;
+        }
+
+        .message.error {
+            display: block;
+            background: #fff0ed;
+            color: #9c3730;
+        }
+
+        .message.info {
+            display: block;
+            background: #eef4fb;
+            color: #345d83;
+        }
+
+        .requirements {
+            margin: 16px 0 0 18px;
+            color: #66736a;
+            font-size: 12px;
+            line-height: 2;
+        }
+
+        /* QUALITY */
+
+        .quality-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .quality-card {
+            padding: 19px;
+            background: #fafbf8;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+        }
+
+        .quality-card p {
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .quality-card h3 {
+            font-size: 25px;
+            margin: 10px 0 6px;
+        }
+
+        .quality-card i {
+            color: var(--green);
+            font-size: 20px;
+        }
+
+        .notice {
+            padding: 14px 16px;
+            background: #fff8e9;
+            border: 1px solid #f0e0b9;
+            border-radius: 9px;
+            color: #725c30;
+            font-size: 12px;
+            line-height: 1.7;
+            margin-bottom: 18px;
+        }
+
+        .loading {
+            color: var(--muted);
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 11px;
+            padding: 10px 0 20px;
+        }
+
+        .mobile-menu {
+            display: none;
+        }
+
+        @media (max-width: 1100px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .quality-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .content {
+                padding: 22px;
+            }
+        }
+
+        @media (max-width: 760px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform .25s;
+                box-shadow: 10px 0 30px rgba(0,0,0,.15);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main {
+                margin-left: 0;
+                width: 100%;
+            }
+
+            .topbar {
+                padding: 15px 18px;
+            }
+
+            .topbar h1 {
+                font-size: 19px;
+            }
+
+            .mobile-menu {
+                display: inline-flex;
+            }
+
+            .content {
+                padding: 18px 14px;
+            }
+
+            .hero {
+                padding: 23px 20px;
+            }
+
+            .hero-icon {
+                display: none;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .stats-grid {
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-number {
+                font-size: 24px;
+            }
+
+            .quality-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .panel {
+                padding: 16px;
+            }
+
+            .status {
+                display: none;
+            }
+        }
+
+        @media (max-width: 390px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="brand">
+            <div class="brand-icon"><i class="bi bi-flower1"></i></div>
+            <div>
+                <h2>AgriAnalytics</h2>
+                <p>Crop Intelligence System</p>
+            </div>
+        </div>
+
+        <div class="nav-label">WORKSPACE</div>
+
+        <button class="nav-link active" data-page="dashboard">
+            <i class="bi bi-grid-1x2"></i> Dashboard
+        </button>
+
+        <button class="nav-link" data-page="records">
+            <i class="bi bi-table"></i> Crop Records
+        </button>
+
+        <button class="nav-link" data-page="analytics">
+            <i class="bi bi-bar-chart-line"></i> Analytics
+        </button>
+
+        <button class="nav-link" data-page="upload">
+            <i class="bi bi-cloud-arrow-up"></i> Dataset Upload
+        </button>
+
+        <button class="nav-link" data-page="quality">
+            <i class="bi bi-shield-check"></i> Data Quality
+        </button>
+
+        <div class="sidebar-bottom">
+            <i class="bi bi-database"></i> Historical Data Analysis<br>
+            <span>Python · Flask · MySQL</span>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+        <header class="topbar">
+            <div style="display:flex;align-items:center;gap:13px;">
+                <button class="btn btn-light mobile-menu" id="mobileMenu"
+                        aria-label="Open navigation">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div>
+                    <h1 id="pageHeading">Dashboard</h1>
+                    <p>Explore agricultural production data and historical trends.</p>
+                </div>
+            </div>
+
+            <div class="status">
+                <span class="status-dot"></span>
+                <span id="connectionStatus">Checking connection...</span>
+            </div>
+        </header>
+
+        <div class="content">
+
+            <!-- ================= DASHBOARD ================= -->
+            <section class="page active" id="page-dashboard">
+
+                <div class="hero">
+                    <div>
+                        <small>Agricultural Data Intelligence</small>
+                        <h2>Understand your crop data.<br>Discover historical patterns.</h2>
+                        <p>
+                            Explore production records, compare regions and crops,
+                            and study historical trends using a unified analytics dashboard.
+                        </p>
+                    </div>
+                    <div class="hero-icon"><i class="bi bi-tree"></i></div>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Total Records</span>
+                            <span class="stat-icon"><i class="bi bi-database"></i></span>
+                        </div>
+                        <div class="stat-number" id="totalRecords">—</div>
+                        <div class="stat-note">Crop production entries</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Unique Crops</span>
+                            <span class="stat-icon"><i class="bi bi-flower2"></i></span>
+                        </div>
+                        <div class="stat-number" id="totalCrops">—</div>
+                        <div class="stat-note">Crops in the dataset</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Regions</span>
+                            <span class="stat-icon"><i class="bi bi-geo-alt"></i></span>
+                        </div>
+                        <div class="stat-number" id="totalRegions">—</div>
+                        <div class="stat-note">Distinct recorded regions</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <div class="stat-top">
+                            <span class="stat-label">Missing Rainfall</span>
+                            <span class="stat-icon"><i class="bi bi-cloud-rain"></i></span>
+                        </div>
+                        <div class="stat-number" id="missingRainfall">—</div>
+                        <div class="stat-note">Records without rainfall values</div>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <h3>Production Trend</h3>
+                                <p>Historical crop production overview</p>
+                            </div>
+                            <i class="bi bi-graph-up-arrow" style="color:#367553;font-size:20px"></i>
+                        </div>
+                        <img class="chart-image" id="dashboardProductionChart"
+                             alt="Historical production trend chart"
+                             hidden>
+                        <div class="chart-placeholder" id="dashboardChartPlaceholder">
+                            <div><i class="bi bi-bar-chart"></i>
+                                Production chart will appear here when data is available.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <h3>About This Dataset</h3>
+                                <p>What you can explore</p>
+                            </div>
+                            <i class="bi bi-info-circle" style="color:#367553;font-size:20px"></i>
+                        </div>
+                        <p style="font-size:13px;line-height:1.9;color:#637067">
+                            This system analyzes historical crop production using crop,
+                            region, year, cultivated area, production, and optional rainfall.
+                            Use the analytics page to compare records and examine trends.
+                        </p>
+                        <div style="margin-top:18px;display:flex;gap:9px;flex-wrap:wrap">
+                            <button class="btn btn-primary" data-go="analytics">
+                                <i class="bi bi-bar-chart"></i> Explore Analytics
+                            </button>
+                            <button class="btn btn-light" data-go="upload">
+                                <i class="bi bi-upload"></i> Upload CSV
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3>Recent Crop Records</h3>
+                            <p>The latest entries returned by the database</p>
+                        </div>
+                        <button class="btn btn-light" data-go="records">View All</button>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Crop</th>
+                                <th>Region</th>
+                                <th>Year</th>
+                                <th>Cultivated Area</th>
+                                <th>Production</th>
+                            </tr>
+                            </thead>
+                            <tbody id="recentRecords">
+                            <tr><td colspan="5" class="empty-row">Loading records...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= CROP RECORDS ================= -->
+            <section class="page" id="page-records">
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="section-heading">Crop Production Records</h3>
+                            <p>Search and filter the records stored in your database.</p>
+                        </div>
+                        <button class="btn btn-outline" id="refreshRecords">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                    </div>
+
+                    <div class="filters">
+                        <div class="field search-field">
+                            <label for="searchInput">Search crop or region</label>
+                            <input id="searchInput" type="search"
+                                   placeholder="Enter a crop or region name">
+                        </div>
+
+                        <div class="field" style="flex:1;min-width:140px">
+                            <label for="cropFilter">Crop</label>
+                            <select id="cropFilter">
+                                <option value="">All crops</option>
+                            </select>
+                        </div>
+
+                        <div class="field" style="flex:1;min-width:140px">
+                            <label for="regionFilter">Region</label>
+                            <select id="regionFilter">
+                                <option value="">All regions</option>
+                            </select>
+                        </div>
+
+                        <div class="field" style="width:120px">
+                            <label for="yearFilter">Year</label>
+                            <select id="yearFilter">
+                                <option value="">All years</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-light" id="clearFilters"
+                                style="align-self:flex-end">
+                            Clear
+                        </button>
+                    </div>
+
+                    <p style="font-size:11px;color:#77847b;margin-bottom:12px">
+                        Showing <strong id="recordCount">0</strong> matching records
+                    </p>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Crop</th>
+                                <th>Region</th>
+                                <th>Year</th>
+                                <th>Area</th>
+                                <th>Production</th>
+                                <th>Rainfall</th>
+                            </tr>
+                            </thead>
+                            <tbody id="recordsBody">
+                            <tr><td colspan="6" class="empty-row">Loading records...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination">
+                        <span id="pageInfo">Page 1</span>
+                        <div class="pagination-buttons">
+                            <button class="btn btn-outline" id="previousPage">Previous</button>
+                            <button class="btn btn-outline" id="nextPage">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= ANALYTICS ================= -->
+            <section class="page" id="page-analytics">
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="section-heading">Crop Analytics</h3>
+                            <p>Study production and yield patterns using historical records.</p>
+                        </div>
+                    </div>
+
+                    <div class="filters">
+                        <div class="field" style="flex:1;min-width:160px">
+                            <label for="analyticsCrop">Select Crop</label>
+                            <select id="analyticsCrop">
+                                <option value="">All crops</option>
+                            </select>
+                        </div>
+
+                        <div class="field" style="flex:1;min-width:160px">
+                            <label for="analyticsRegion">Select Region</label>
+                            <select id="analyticsRegion">
+                                <option value="">All regions</option>
+                            </select>
+                        </div>
+
+                        <button class="btn btn-primary" id="applyAnalytics"
+                                style="align-self:flex-end">
+                            <i class="bi bi-funnel"></i> Apply Filters
+                        </button>
+                    </div>
+                </div>
+
+                <div class="notice">
+                    <strong>Interpretation note:</strong> These charts describe historical
+                    patterns. A trend or association does not by itself establish that
+                    rainfall or another factor caused a change in production.
+                </div>
+
+                <div class="grid-2">
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <h3>Production Trend</h3>
+                                <p>Production across historical records</p>
+                            </div>
+                        </div>
+                        <img class="chart-image" id="analyticsProductionChart"
+                             alt="Production trend chart" hidden>
+                        <div class="chart-placeholder" id="analyticsProductionPlaceholder">
+                            <div><i class="bi bi-bar-chart-line"></i>
+                                Production chart will load here.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <div class="panel-header">
+                            <div>
+                                <h3>Yield Trend</h3>
+                                <p>Production divided by cultivated area when units are compatible</p>
+                            </div>
+                        </div>
+                        <img class="chart-image" id="analyticsYieldChart"
+                             alt="Yield trend chart" hidden>
+                        <div class="chart-placeholder" id="analyticsYieldPlaceholder">
+                            <div><i class="bi bi-graph-up"></i>
+                                Yield chart will load here.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3>Yearly Summary</h3>
+                            <p>Year-by-year summary for the selected crop and region</p>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>Year</th>
+                                <th>Crop</th>
+                                <th>Region</th>
+                                <th>Production</th>
+                                <th>Cultivated Area</th>
+                            </tr>
+                            </thead>
+                            <tbody id="yearlySummary">
+                            <tr><td colspan="5" class="empty-row">Apply filters to load the summary.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================= DATASET UPLOAD ================= -->
+            <section class="page" id="page-upload">
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="section-heading">Upload Crop Dataset</h3>
+                            <p>Import historical crop production data from a CSV file.</p>
+                        </div>
+                    </div>
+
+                    <form id="uploadForm" enctype="multipart/form-data">
+                        <div class="upload-box">
+                            <i class="bi bi-file-earmark-spreadsheet"></i>
+                            <h3>Upload your CSV file</h3>
+                            <p>
+                                Select a CSV dataset from your computer.
+                                The backend should validate its columns and values before import.
+                            </p>
+
+                            <input type="file" id="csvFile" name="file"
+                                   accept=".csv,text/csv" required>
+
+                            <p id="fileName">No file selected</p>
+
+                            <button class="btn btn-primary" id="uploadButton" type="submit">
+                                <i class="bi bi-cloud-arrow-up"></i> Upload Dataset
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="uploadResult" class="message" role="status"></div>
+                </div>
+
+                <div class="panel">
+                    <h3 class="section-heading">Required CSV Columns</h3>
+                    <p class="section-subtitle">
+                        Use these column names so the file can be validated by the backend.
+                    </p>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                            <tr><th>Column</th><th>Description</th><th>Example</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr><td><code>crop_name</code></td><td>Crop name</td><td>Rice</td></tr>
+                            <tr><td><code>region_name</code></td><td>Region or location name</td><td>Andhra Pradesh</td></tr>
+                            <tr><td><code>year</code></td><td>Year of observation</td><td>2024</td></tr>
+                            <tr><td><code>cultivated_area</code></td><td>Cultivated area value</td><td>1200</td></tr>
+                            <tr><td><code>area_unit</code></td><td>Area measurement unit</td><td>hectares</td></tr>
+                            <tr><td><code>production</code></td><td>Production quantity</td><td>3600</td></tr>
+                            <tr><td><code>production_unit</code></td><td>Production measurement unit</td><td>tonnes</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <ul class="requirements">
+                        <li>Optional rainfall columns: <code>rainfall</code> and <code>rainfall_unit</code>.</li>
+                        <li>Use numeric values for year, area, production, and rainfall.</li>
+                        <li>Keep units consistent when comparing records or calculating yield.</li>
+                        <li>Repeated uploads may insert duplicate records unless your backend prevents them.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- ================= DATA QUALITY ================= -->
+            <section class="page" id="page-quality">
+
+                <div class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h3 class="section-heading">Data Quality Overview</h3>
+                            <p>Review common issues that may affect analysis.</p>
+                        </div>
+                        <button class="btn btn-outline" id="qualityButton">
+                            <i class="bi bi-arrow-clockwise"></i> Refresh
+                        </button>
+                    </div>
+
+                    <div class="notice">
+                        Data quality indicators help identify missing or inconsistent values.
+                        A missing rainfall value does not necessarily mean the rest of a record is invalid.
+                    </div>
+
+                    <div class="quality-grid">
+                        <div class="quality-card">
+                            <i class="bi bi-database"></i>
+                            <p>Total Records</p>
+                            <h3 id="qualityTotal">—</h3>
+                            <p>Records reviewed</p>
+                        </div>
+
+                        <div class="quality-card">
+                            <i class="bi bi-cloud-rain"></i>
+                            <p>Missing Rainfall</p>
+                            <h3 id="qualityRainfall">—</h3>
+                            <p id="qualityRainfallDetail">Records with unavailable rainfall</p>
+                        </div>
+
+                        <div class="quality-card">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <p>Zero or Invalid Area</p>
+                            <h3 id="qualityZeroArea">—</h3>
+                            <p>Records requiring area review</p>
+                        </div>
+
+                        <div class="quality-card">
+                            <i class="bi bi-calculator"></i>
+                            <p>Undefined Yield</p>
+                            <h3 id="qualityUndefinedYield">—</h3>
+                            <p>Yield cannot be calculated reliably</p>
+                        </div>
+
+                        <div class="quality-card">
+                            <i class="bi bi-rulers"></i>
+                            <p>Unit Compatibility Issues</p>
+                            <h3 id="qualityUnsupported">—</h3>
+                            <p>Records needing unit review before yield comparison</p>
+                        </div>
+
+                        <div class="quality-card">
+                            <i class="bi bi-check-circle"></i>
+                            <p>Data Review</p>
+                            <h3 id="qualityReviewStatus" style="font-size:18px">Pending</h3>
+                            <p>Refresh to retrieve the latest quality summary</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h3 class="section-heading">Recommended Review Steps</h3>
+                    <ul class="requirements">
+                        <li>Check that crop names and region names are consistently spelled.</li>
+                        <li>Confirm that years and numeric values are valid.</li>
+                        <li>Review missing rainfall values without assuming they are zero.</li>
+                        <li>Check area and production units before comparing yield.</li>
+                        <li>Investigate duplicate records before interpreting totals.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <div class="footer">
+                AgriAnalytics · Agricultural Crop Production Analysis System
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    /* ==========================================================
+       AGRIANALYTICS FRONTEND
+       This JavaScript communicates with your Flask API.
+       ========================================================== */
+
+    const API = {
+        health: "/api/health",
+        records: "/records",
+        crops: "/crops",
+        regions: "/regions",
+        upload: "/upload",
+        yearly: "/analysis/yearly",
+        quality: "/analysis/data-quality",
+        productionChart: "/charts/production",
+        yieldChart: "/charts/yield"
+    };
+
+    let allRecords = [];
+    let currentPage = 1;
+    const pageSize = 10;
+
+    const $ = id => document.getElementById(id);
+
+    function firstValue(obj, keys, fallback = "") {
+        for (const key of keys) {
+            if (obj && obj[key] !== undefined && obj[key] !== null) {
+                return obj[key];
+            }
+        }
+        return fallback;
+    }
+
+    function numberValue(value) {
+        const n = Number(value);
+        return Number.isFinite(n) ? n : 0;
+    }
+
+    function formatNumber(value) {
+        if (value === null || value === undefined || value === "") return "—";
+        const n = Number(value);
+        return Number.isFinite(n) ? n.toLocaleString("en-IN") : String(value);
+    }
+
+    function safeText(value) {
+        return String(value ?? "");
+    }
+
+    function escapeHTML(value) {
+        return safeText(value).replace(/[&<>"']/g, char => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[char]);
+    }
+
+    async function apiFetch(url, options = {}) {
+        const response = await fetch(url, options);
+        const text = await response.text();
+
+        let data;
+        try {
+            data = text ? JSON.parse(text) : {};
+        } catch {
+            data = text;
+        }
+
+        if (!response.ok) {
+            const message = typeof data === "object"
+                ? firstValue(data, ["error", "message"], response.statusText)
+                : data || response.statusText;
+
+            throw new Error(message);
+        }
+
+        return data;
+    }
+
+    function getRecordList(data) {
+        if (Array.isArray(data)) return data;
+
+        if (data && typeof data === "object") {
+            for (const key of ["records", "data", "results", "items"]) {
+                if (Array.isArray(data[key])) return data[key];
+            }
+        }
+
+        return [];
+    }
+
+    function cropName(record) {
+        return firstValue(record, ["crop_name", "crop", "name"], "Unknown");
+    }
+
+    function regionName(record) {
+        return firstValue(record, ["region_name", "region", "location"], "Unknown");
+    }
+
+    function recordYear(record) {
+        return firstValue(record, ["year", "production_year"], "—");
+    }
+
+    function recordArea(record) {
+        return firstValue(record, ["cultivated_area", "area"], "");
+    }
+
+    function recordAreaUnit(record) {
+        return firstValue(record, ["area_unit"], "");
+    }
+
+    function recordProduction(record) {
+        return firstValue(record, ["production", "production_quantity"], "");
+    }
+
+    function recordProductionUnit(record) {
+        return firstValue(record, ["production_unit", "unit"], "");
+    }
+
+    function recordRainfall(record) {
+        return firstValue(record, ["rainfall"], null);
+    }
+
+    function displayArea(record) {
+        const value = recordArea(record);
+        const unit = recordAreaUnit(record);
+        return `${formatNumber(value)}${unit ? " " + unit : ""}`;
+    }
+
+    function displayProduction(record) {
+        const value = recordProduction(record);
+        const unit = recordProductionUnit(record);
+        return `${formatNumber(value)}${unit ? " " + unit : ""}`;
+    }
+
+    function displayRainfall(record) {
+        const value = recordRainfall(record);
+        if (value === null || value === "") return "Missing";
+
+        const unit = firstValue(record, ["rainfall_unit"], "");
+        return `${formatNumber(value)}${unit ? " " + unit : ""}`;
+    }
+
+    /* ---------------- NAVIGATION ---------------- */
+
+    function showPage(pageName) {
+        document.querySelectorAll(".page").forEach(page => {
+            page.classList.toggle("active", page.id === `page-${pageName}`);
+        });
+
+        document.querySelectorAll(".nav-link").forEach(link => {
+            link.classList.toggle("active", link.dataset.page === pageName);
+        });
+
+        const headings = {
+            dashboard: "Dashboard",
+            records: "Crop Records",
+            analytics: "Analytics",
+            upload: "Dataset Upload",
+            quality: "Data Quality"
+        };
+
+        $("pageHeading").textContent = headings[pageName] || "Dashboard";
+        $("sidebar").classList.remove("open");
+
+        if (pageName === "records") renderRecords();
+        if (pageName === "analytics") loadAnalytics();
+        if (pageName === "quality") loadQuality();
+    }
+
+    document.querySelectorAll(".nav-link").forEach(link => {
+        link.addEventListener("click", () => showPage(link.dataset.page));
+    });
+
+    document.querySelectorAll("[data-go]").forEach(button => {
+        button.addEventListener("click", () => showPage(button.dataset.go));
+    });
+
+    $("mobileMenu").addEventListener("click", () => {
+        $("sidebar").classList.toggle("open");
+    });
+
+    /* ---------------- LOAD RECORDS ---------------- */
+
+    async function loadRecords() {
+        $("recentRecords").innerHTML =
+            '<tr><td colspan="5" class="empty-row">Loading records...</td></tr>';
+
+        $("recordsBody").innerHTML =
+            '<tr><td colspan="6" class="empty-row">Loading records...</td></tr>';
+
+        try {
+            const data = await apiFetch(API.records);
+            allRecords = getRecordList(data);
+
+            // Populate filter options from the returned database records.
+            populateSelect($("cropFilter"),
+                [...new Set(allRecords.map(cropName))].sort(),
+                "All crops");
+
+            populateSelect($("regionFilter"),
+                [...new Set(allRecords.map(regionName))].sort(),
+                "All regions");
+
+            populateSelect($("yearFilter"),
+                [...new Set(allRecords.map(recordYear))]
+                    .filter(y => y !== "—")
+                    .sort((a, b) => Number(b) - Number(a)),
+                "All years");
+
+            populateSelect($("analyticsCrop"),
+                [...new Set(allRecords.map(cropName))].sort(),
+                "All crops");
+
+            populateSelect($("analyticsRegion"),
+                [...new Set(allRecords.map(regionName))].sort(),
+                "All regions");
+
+            updateDashboardStats();
+            renderRecentRecords();
+            renderRecords();
+        } catch (error) {
+            showConnectionError(error);
+            $("recentRecords").innerHTML =
+                `<tr><td colspan="5" class="empty-row">${escapeHTML(error.message)}</td></tr>`;
+
+            $("recordsBody").innerHTML =
+                `<tr><td colspan="6" class="empty-row">${escapeHTML(error.message)}</td></tr>`;
+        }
+    }
+
+    function populateSelect(select, values, label) {
+        const previous = select.value;
+
+        select.innerHTML = "";
+        const defaultOption = document.createElement("option");
+        defaultOption.value = "";
+        defaultOption.textContent = label;
+        select.appendChild(defaultOption);
+
+        values.forEach(value => {
+            const option = document.createElement("option");
+            option.value = safeText(value);
+            option.textContent = safeText(value);
+            select.appendChild(option);
+        });
+
+        if (values.some(value => safeText(value) === previous)) {
+            select.value = previous;
+        }
+    }
+
+    function updateDashboardStats() {
+        $("totalRecords").textContent = formatNumber(allRecords.length);
+        $("totalCrops").textContent =
+            formatNumber(new Set(allRecords.map(cropName)).size);
+        $("totalRegions").textContent =
+            formatNumber(new Set(allRecords.map(regionName)).size);
+
+        const missingRain = allRecords.filter(record => {
+            const value = recordRainfall(record);
+            return value === null || value === "";
+        }).length;
+
+        $("missingRainfall").textContent = formatNumber(missingRain);
+    }
+
+    function renderRecentRecords() {
+        const records = allRecords.slice(-5).reverse();
+
+        if (!records.length) {
+            $("recentRecords").innerHTML =
+                '<tr><td colspan="5" class="empty-row">No crop records found.</td></tr>';
+            return;
+        }
+
+        $("recentRecords").innerHTML = records.map(record => `
+            <tr>
+                <td><strong>${escapeHTML(cropName(record))}</strong></td>
+                <td>${escapeHTML(regionName(record))}</td>
+                <td>${escapeHTML(recordYear(record))}</td>
+                <td>${escapeHTML(displayArea(record))}</td>
+                <td>${escapeHTML(displayProduction(record))}</td>
+            </tr>
+        `).join("");
+    }
+
+    /* ---------------- FILTER AND PAGINATION ---------------- */
+
+    function getFilteredRecords() {
+        const search = $("searchInput").value.trim().toLowerCase();
+        const crop = $("cropFilter").value;
+        const region = $("regionFilter").value;
+        const year = $("yearFilter").value;
+
+        return allRecords.filter(record => {
+            const matchesSearch =
+                cropName(record).toLowerCase().includes(search) ||
+                regionName(record).toLowerCase().includes(search);
+
+            return matchesSearch &&
+                (!crop || cropName(record) === crop) &&
+                (!region || regionName(record) === region) &&
+                (!year || safeText(recordYear(record)) === year);
+        });
+    }
+
+    function renderRecords() {
+        const filtered = getFilteredRecords();
+        const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        const start = (currentPage - 1) * pageSize;
+        const records = filtered.slice(start, start + pageSize);
+
+        $("recordCount").textContent = formatNumber(filtered.length);
+        $("pageInfo").textContent = `Page ${currentPage} of ${totalPages}`;
+
+        $("previousPage").disabled = currentPage <= 1;
+        $("nextPage").disabled = currentPage >= totalPages;
+
+        if (!records.length) {
+            $("recordsBody").innerHTML =
+                '<tr><td colspan="6" class="empty-row">No matching records found.</td></tr>';
+            return;
+        }
+
+        $("recordsBody").innerHTML = records.map(record => `
+            <tr>
+                <td><strong>${escapeHTML(cropName(record))}</strong></td>
+                <td>${escapeHTML(regionName(record))}</td>
+                <td>${escapeHTML(recordYear(record))}</td>
+                <td>${escapeHTML(displayArea(record))}</td>
+                <td>${escapeHTML(displayProduction(record))}</td>
+                <td>${escapeHTML(displayRainfall(record))}</td>
+            </tr>
+        `).join("");
+    }
+
+    ["searchInput", "cropFilter", "regionFilter", "yearFilter"].forEach(id => {
+        $(id).addEventListener(id === "searchInput" ? "input" : "change", () => {
+            currentPage = 1;
+            renderRecords();
+        });
+    });
+
+    $("previousPage").addEventListener("click", () => {
+        currentPage--;
+        renderRecords();
+    });
+
+    $("nextPage").addEventListener("click", () => {
+        currentPage++;
+        renderRecords();
+    });
+
+    $("clearFilters").addEventListener("click", () => {
+        $("searchInput").value = "";
+        $("cropFilter").value = "";
+        $("regionFilter").value = "";
+        $("yearFilter").value = "";
+        currentPage = 1;
+        renderRecords();
+    });
+
+    $("refreshRecords").addEventListener("click", loadRecords);
+
+    /* ---------------- CHARTS ---------------- */
+
+    function loadChart(imageId, placeholderId, url) {
+        const img = $(imageId);
+        const placeholder = $(placeholderId);
+
+        img.hidden = true;
+        placeholder.hidden = false;
+
+        // A timestamp prevents the browser from showing a stale cached chart.
+        const separator = url.includes("?") ? "&" : "?";
+        img.src = url + separator + "_t=" + Date.now();
+
+        img.onload = () => {
+            img.hidden = false;
+            placeholder.hidden = true;
+        };
+
+        img.onerror = () => {
+            img.hidden = true;
+            placeholder.hidden = false;
+            placeholder.innerHTML =
+                '<div><i class="bi bi-bar-chart"></i>' +
+                'Chart unavailable. Check that the Flask chart route is working.</div>';
+        };
+    }
+
+    function loadDashboardChart() {
+        loadChart(
+            "dashboardProductionChart",
+            "dashboardChartPlaceholder",
+            API.productionChart
+        );
+    }
+
+    function loadAnalytics() {
+        loadChart(
+            "analyticsProductionChart",
+            "analyticsProductionPlaceholder",
+            API.productionChart
+        );
+
+        const crop = $("analyticsCrop").value;
+        const region = $("analyticsRegion").value;
+
+        const params = new URLSearchParams();
+        if (crop) params.set("crop_name", crop);
+        if (region) params.set("region_name", region);
+
+        const yieldUrl = API.yieldChart +
+            (params.toString() ? "?" + params.toString() : "");
+
+        loadChart(
+            "analyticsYieldChart",
+            "analyticsYieldPlaceholder",
+            yieldUrl
+        );
+
+        loadYearlySummary(crop, region);
+    }
+
+    $("applyAnalytics").addEventListener("click", loadAnalytics);
+
+    async function loadYearlySummary(crop, region) {
+        const body = $("yearlySummary");
+        body.innerHTML =
+            '<tr><td colspan="5" class="empty-row">Loading yearly summary...</td></tr>';
+
+        const params = new URLSearchParams();
+        if (crop) params.set("crop_name", crop);
+        if (region) params.set("region_name", region);
+
+        const url = API.yearly +
+            (params.toString() ? "?" + params.toString() : "");
+
+        try {
+            const data = await apiFetch(url);
+            const rows = getRecordList(data);
+
+            if (!rows.length) {
+                body.innerHTML =
+                    '<tr><td colspan="5" class="empty-row">No yearly summary data available.</td></tr>';
+                return;
+            }
+
+            body.innerHTML = rows.map(row => `
+                <tr>
+                    <td>${escapeHTML(firstValue(row, ["year"], "—"))}</td>
+                    <td>${escapeHTML(firstValue(row, ["crop_name", "crop"], "All crops"))}</td>
+                    <td>${escapeHTML(firstValue(row, ["region_name", "region"], "All regions"))}</td>
+                    <td>${escapeHTML(formatNumber(firstValue(row,
+                        ["total_production", "production", "sum_production"], "")))}</td>
+                    <td>${escapeHTML(formatNumber(firstValue(row,
+                        ["total_area", "cultivated_area", "area", "sum_area"], "")))}</td>
+                </tr>
+            `).join("");
+        } catch (error) {
+            body.innerHTML =
+                `<tr><td colspan="5" class="empty-row">${escapeHTML(error.message)}</td></tr>`;
+        }
+    }
+
+    /* ---------------- CSV UPLOAD ---------------- */
+
+    $("csvFile").addEventListener("change", () => {
+        const file = $("csvFile").files[0];
+        $("fileName").textContent = file
+            ? `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`
+            : "No file selected";
+    });
+
+    function showMessage(element, type, message) {
+        element.className = `message ${type}`;
+        element.textContent = message;
+    }
+
+    $("uploadForm").addEventListener("submit", async event => {
+        event.preventDefault();
+
+        const file = $("csvFile").files[0];
+
+        if (!file) {
+            showMessage($("uploadResult"), "error", "Please select a CSV file.");
+            return;
+        }
+
+        if (!file.name.toLowerCase().endsWith(".csv")) {
+            showMessage($("uploadResult"), "error", "Please select a .csv file.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", file);
+
+        $("uploadButton").disabled = true;
+        $("uploadButton").textContent = "Uploading...";
+
+        try {
+            const data = await apiFetch(API.upload, {
+                method: "POST",
+                body: formData
+            });
+
+            const message = typeof data === "object"
+                ? firstValue(data, ["message", "success"],
+                    "Upload request completed. Refresh the records to verify the imported data.")
+                : String(data);
+
+            showMessage($("uploadResult"), "success", message);
+
+            await loadRecords();
+            await loadQuality();
+        } catch (error) {
+            showMessage($("uploadResult"), "error",
+                "Upload failed: " + error.message);
+        } finally {
+            $("uploadButton").disabled = false;
+            $("uploadButton").innerHTML =
+                '<i class="bi bi-cloud-arrow-up"></i> Upload Dataset';
+        }
+    });
+
+    /* ---------------- DATA QUALITY ---------------- */
+
+    async function loadQuality() {
+        try {
+            const data = await apiFetch(API.quality);
+
+            const total = firstValue(data,
+                ["total_records", "total", "record_count"], allRecords.length);
+
+            const missing = firstValue(data,
+                ["missing_rainfall", "missing_rainfall_count"], "—");
+
+            const zeroArea = firstValue(data,
+                ["zero_area", "invalid_area", "zero_or_invalid_area"], "—");
+
+            const undefinedYield = firstValue(data,
+                ["undefined_yield", "undefined_yield_count"], "—");
+
+            const unsupported = firstValue(data,
+                ["unsupported_yield_units", "unit_compatibility_issues",
+                 "incompatible_units"], "—");
+
+            $("qualityTotal").textContent = formatNumber(total);
+            $("qualityRainfall").textContent = formatNumber(missing);
+            $("qualityZeroArea").textContent = formatNumber(zeroArea);
+            $("qualityUndefinedYield").textContent = formatNumber(undefinedYield);
+            $("qualityUnsupported").textContent = formatNumber(unsupported);
+
+            $("qualityRainfallDetail").textContent =
+                "Records with unavailable rainfall values";
+
+            $("qualityReviewStatus").textContent = "Loaded";
+        } catch (error) {
+            $("qualityReviewStatus").textContent = "Unavailable";
+            console.error("Could not load data quality:", error);
+        }
+    }
+
+    $("qualityButton").addEventListener("click", loadQuality);
+
+    /* ---------------- CONNECTION STATUS ---------------- */
+
+    async function checkConnection() {
+        try {
+            await apiFetch(API.health);
+            $("connectionStatus").textContent = "Backend connected";
+        } catch (error) {
+            $("connectionStatus").textContent = "Check backend";
+            $("connectionStatus").style.color = "#b84d45";
+        }
+    }
+
+    function showConnectionError(error) {
+        $("connectionStatus").textContent = "Data unavailable";
+        console.error("API request failed:", error);
+    }
+
+    /* ---------------- INITIALIZE ---------------- */
+
+    async function initializeApp() {
+        checkConnection();
+        loadDashboardChart();
+        await loadRecords();
+        await loadQuality();
+    }
+
+    initializeApp();
+</script>
+</body>
+</html>
